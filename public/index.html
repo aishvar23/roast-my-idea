@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔥 Roast My Idea</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #0f0f0f;
+      --bg-card:      #1a1a1a;
+      --bg-output:    #0a0a0a;
+      --border:       #2a2a2a;
+      --border-hover: #444;
+      --accent:       #ff4444;
+      --accent-glow:  rgba(255, 68, 68, 0.3);
+      --accent-dim:   rgba(255, 68, 68, 0.1);
+      --text:         #e0e0e0;
+      --text-muted:   #777;
+      --text-dim:     #444;
+      --header-color: #ff6644;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 20px 16px 60px;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      padding: 44px 0 36px;
+    }
+
+    .header h1 {
+      font-size: clamp(2.2rem, 6vw, 3.4rem);
+      font-weight: 900;
+      color: var(--accent);
+      letter-spacing: -1.5px;
+      text-shadow:
+        0 0 20px var(--accent-glow),
+        0 0 60px rgba(255, 68, 68, 0.15);
+      animation: flicker 5s infinite;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+
+    .header kbd {
+      font-size: 0.75rem;
+      background: #222;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 5px;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    @keyframes flicker {
+      0%, 93%, 95%, 97%, 100% { opacity: 1; text-shadow: 0 0 20px var(--accent-glow), 0 0 60px rgba(255,68,68,.15); }
+      94% { opacity: 0.82; text-shadow: none; }
+      96% { opacity: 0.95; }
+      98% { opacity: 0.88; text-shadow: none; }
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    /* ── Form labels ── */
+    .field-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    /* ── Textarea ── */
+    textarea {
+      width: 100%;
+      background: var(--bg-output);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      padding: 13px 15px;
+      resize: vertical;
+      min-height: 130px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    textarea::placeholder { color: var(--text-dim); }
+
+    /* ── Intensity selector ── */
+    .field-group { margin-bottom: 20px; }
+
+    .intensity-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .intensity-btn {
+      flex: 1;
+      padding: 11px 10px;
+      background: var(--bg-output);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .intensity-btn:hover:not(.active) {
+      border-color: var(--border-hover);
+      color: var(--text);
+    }
+
+    .intensity-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+
+    /* ── Roast button ── */
+    .btn-roast {
+      width: 100%;
+      padding: 16px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-roast:hover:not(:disabled) {
+      background: #ff2222;
+      box-shadow: 0 0 28px var(--accent-glow), 0 6px 20px rgba(255, 68, 68, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn-roast:active:not(:disabled) { transform: translateY(0); }
+
+    .btn-roast:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-msg {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+      min-height: 18px;
+    }
+
+    /* ── Results section ── */
+    #results-section { display: none; }
+
+    /* ── Doomed-O-Meter ── */
+    .meter-container { margin-bottom: 22px; }
+
+    .meter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .meter-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .meter-score {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--text-dim);
+      font-variant-numeric: tabular-nums;
+      transition: color 0.4s;
+    }
+
+    .meter-score.revealed {
+      color: var(--accent);
+      animation: score-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes score-pop {
+      0%   { transform: scale(0.7); opacity: 0; }
+      70%  { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .meter-track {
+      height: 22px;
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 11px;
+      /* Gradient spans 1000px so the colour revealed matches the score level */
+      background: linear-gradient(to right, #44ff88 0%, #ffcc00 40%, #ff8800 65%, #ff4444 100%);
+      background-size: 1000px 100%;
+      background-position: left center;
+      transition: width 1.6s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .meter-fill::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.12), transparent 60%);
+      border-radius: inherit;
+    }
+
+    .meter-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+    }
+
+    .meter-labels span {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Roast output ── */
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+
+    .roast-output-wrapper {
+      background: var(--bg-output);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+      min-height: 180px;
+    }
+
+    .roast-output {
+      font-family: 'Courier New', Consolas, 'Liberation Mono', monospace;
+      font-size: 0.9rem;
+      line-height: 1.75;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    /* Markdown elements inside roast output */
+    .roast-output .md-h2 {
+      display: block;
+      color: var(--header-color);
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin: 1.2em 0 0.3em;
+    }
+
+    .roast-output .md-h2:first-child { margin-top: 0; }
+
+    .roast-output .md-hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.1em 0;
+    }
+
+    .roast-output .cursor {
+      display: inline-block;
+      color: var(--accent);
+      animation: blink 1s step-end infinite;
+      margin-left: 1px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    /* ── Action buttons ── */
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      border: 1px solid;
+    }
+
+    .btn-save {
+      background: transparent;
+      border-color: var(--border-hover);
+      color: var(--text-muted);
+    }
+
+    .btn-save:hover {
+      border-color: var(--text-muted);
+      color: var(--text);
+    }
+
+    .btn-defend {
+      background: transparent;
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-defend:hover {
+      background: var(--accent-dim);
+    }
+
+    /* ── Defend section ── */
+    .defend-section {
+      display: none;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .defend-section.open { display: block; animation: slide-in 0.25s ease; }
+
+    .btn-submit-defense {
+      margin-top: 10px;
+      padding: 10px 18px;
+      background: #1e1e2e;
+      border: 1px solid #445;
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+
+    .btn-submit-defense:hover {
+      background: #252535;
+      border-color: var(--accent);
+    }
+
+    /* ── Animations ── */
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in { animation: fade-in 0.4s ease; }
+
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .intensity-btn { font-size: 0.8rem; padding: 10px 6px; }
+      .action-buttons { gap: 8px; }
+      .card { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <header class="header">
+      <h1>🔥 Roast My Idea</h1>
+      <p>Submit your idea. Face the flames. Emerge stronger <em>(maybe)</em>. &nbsp;<kbd>Ctrl+Enter</kbd> to roast.</p>
+    </header>
+
+    <!-- Input card -->
+    <div class="card">
+      <div class="field-group">
+        <label class="field-label" for="idea-input">Your Idea</label>
+        <textarea
+          id="idea-input"
+          placeholder="Describe your brilliant idea in detail. The more specific, the more devastating the roast..."
+          rows="5"
+        ></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Roast Intensity</label>
+        <div class="intensity-group">
+          <button class="intensity-btn" data-intensity="mild"   onclick="selectIntensity('mild')">Mild 🌶️</button>
+          <button class="intensity-btn active" data-intensity="medium" onclick="selectIntensity('medium')">Medium 🔥</button>
+          <button class="intensity-btn" data-intensity="savage" onclick="selectIntensity('savage')">Savage 💀</button>
+        </div>
+      </div>
+
+      <button class="btn-roast" id="roast-btn" onclick="submitRoast()">
+        🔥 Roast Me!
+      </button>
+      <div class="status-msg" id="status-msg"></div>
+    </div>
+
+    <!-- Results card -->
+    <div id="results-section">
+      <div class="card">
+
+        <!-- Doomed-O-Meter -->
+        <div class="meter-container">
+          <div class="meter-header">
+            <span class="meter-title">⚠️ Doomed-O-Meter</span>
+            <span class="meter-score" id="meter-score">?/10</span>
+          </div>
+          <div class="meter-track">
+            <div class="meter-fill" id="meter-fill"></div>
+          </div>
+          <div class="meter-labels">
+            <span>Survivable 🌱</span>
+            <span>Absolutely Doomed 💀</span>
+          </div>
+        </div>
+
+        <!-- Roast output -->
+        <div class="section-label">📋 The Verdict</div>
+        <div class="roast-output-wrapper">
+          <div class="roast-output" id="roast-output"></div>
+        </div>
+
+        <!-- Action buttons (hidden until done) -->
+        <div class="action-buttons" id="action-buttons" style="display:none">
+          <button class="btn btn-save" onclick="saveRoast()">💾 Save Roast</button>
+          <button class="btn btn-defend" id="defend-btn" onclick="toggleDefend()">🛡️ Defend Yourself</button>
+        </div>
+
+        <!-- Defend yourself section -->
+        <div class="defend-section" id="defend-section">
+          <label class="field-label" for="defense-input">Your Defense</label>
+          <textarea
+            id="defense-input"
+            placeholder="Fight back! Explain why you're not as doomed as they say..."
+            rows="3"
+          ></textarea>
+          <button class="btn-submit-defense" onclick="submitDefense()">⚔️ Submit Defense (and get roasted again)</button>
+        </div>
+
+      </div>
+    </div>
+  </div><!-- /container -->
+
+  <script>
+    // ── State ──────────────────────────────────────────────────────────
+    let selectedIntensity = 'medium';
+    let isStreaming       = false;
+    let rawRoastText      = '';
+    let currentIdea       = '';
+    let scoreRevealed     = false;
+
+    // ── DOM refs ───────────────────────────────────────────────────────
+    const ideaInput      = document.getElementById('idea-input');
+    const roastBtn       = document.getElementById('roast-btn');
+    const statusMsg      = document.getElementById('status-msg');
+    const resultsSection = document.getElementById('results-section');
+    const roastOutput    = document.getElementById('roast-output');
+    const meterFill      = document.getElementById('meter-fill');
+    const meterScore     = document.getElementById('meter-score');
+    const actionButtons  = document.getElementById('action-buttons');
+    const defendSection  = document.getElementById('defend-section');
+    const defenseInput   = document.getElementById('defense-input');
+
+    // ── Intensity selector ─────────────────────────────────────────────
+    function selectIntensity(intensity) {
+      selectedIntensity = intensity;
+      document.querySelectorAll('.intensity-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.intensity === intensity);
+      });
+    }
+
+    // ── HTML helpers ───────────────────────────────────────────────────
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    /**
+     * Minimal markdown → HTML:
+     *   ## heading  → <span class="md-h2">
+     *   **bold**    → <strong>
+     *   ---         → <hr class="md-hr">
+     *   \n          → <br>
+     */
+    function renderMarkdown(text, addCursor = false) {
+      let html = escapeHtml(text)
+        .replace(/^## (.+)$/gm, '<span class="md-h2">$1</span>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/^---$/gm, '<hr class="md-hr">')
+        .replace(/\n/g, '<br>');
+
+      if (addCursor) {
+        html += '<span class="cursor">▋</span>';
+      }
+      return html;
+    }
+
+    // ── Score parsing & meter ──────────────────────────────────────────
+    function parseScore(text) {
+      const m = text.match(/Doomed-O-Meter:\s*(\d+)\s*\/\s*10/i);
+      return m ? Math.min(10, Math.max(1, parseInt(m[1], 10))) : null;
+    }
+
+    function revealScore(score) {
+      if (scoreRevealed) return;
+      scoreRevealed = true;
+      meterFill.style.width = (score / 10 * 100) + '%';
+      meterScore.textContent = score + '/10';
+      meterScore.classList.add('revealed');
+    }
+
+    // ── Output renderer ────────────────────────────────────────────────
+    function updateOutput(text, streaming = true) {
+      roastOutput.innerHTML = renderMarkdown(text, streaming);
+
+      // Try to reveal score mid-stream as soon as it appears in the text
+      if (streaming && !scoreRevealed) {
+        const score = parseScore(text);
+        if (score !== null) revealScore(score);
+      }
+    }
+
+    // ── Streaming state helpers ────────────────────────────────────────
+    function setStreaming(active) {
+      isStreaming = active;
+      roastBtn.disabled = active;
+
+      if (active) {
+        roastBtn.innerHTML = '<span class="spinner"></span> Roasting…';
+        statusMsg.textContent = 'Summoning the flames of criticism…';
+      } else {
+        roastBtn.innerHTML = '🔥 Roast Me!';
+        statusMsg.textContent = '';
+      }
+    }
+
+    // ── Core stream function ───────────────────────────────────────────
+    async function startStream(idea, intensity, defense = null) {
+      rawRoastText  = '';
+      scoreRevealed = false;
+
+      // Reset UI
+      roastOutput.innerHTML = '';
+      meterFill.style.width = '0%';
+      meterScore.textContent = '?/10';
+      meterScore.classList.remove('revealed');
+      actionButtons.style.display = 'none';
+      defendSection.classList.remove('open');
+
+      resultsSection.style.display = 'block';
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      setStreaming(true);
+
+      try {
+        const res = await fetch('/roast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idea, intensity, defense })
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Server error' }));
+          throw new Error(err.error || `HTTP ${res.status}`);
+        }
+
+        const reader  = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer    = '';
+
+        outer: while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+
+          // SSE messages are separated by \n\n
+          const messages = buffer.split('\n\n');
+          buffer = messages.pop(); // keep potential incomplete tail
+
+          for (const msg of messages) {
+            for (const line of msg.split('\n')) {
+              if (!line.startsWith('data: ')) continue;
+              const payload = line.slice(6).trim();
+
+              if (payload === '[DONE]') {
+                handleStreamDone();
+                break outer;
+              }
+
+              try {
+                const { text, error } = JSON.parse(payload);
+                if (error) throw new Error(error);
+                if (text) {
+                  rawRoastText += text;
+                  updateOutput(rawRoastText, true);
+                }
+              } catch (parseErr) {
+                if (parseErr.message !== 'Unexpected token') throw parseErr;
+              }
+            }
+          }
+        }
+
+        handleStreamDone();
+
+      } catch (err) {
+        roastOutput.innerHTML =
+          `<span style="color:var(--accent)">Error: ${escapeHtml(err.message)}</span>`;
+        setStreaming(false);
+      }
+    }
+
+    function handleStreamDone() {
+      // Final render — remove cursor, parse score one last time
+      updateOutput(rawRoastText, false);
+
+      const score = parseScore(rawRoastText);
+      if (score !== null) revealScore(score);
+
+      setStreaming(false);
+
+      actionButtons.style.display = 'flex';
+      actionButtons.classList.add('fade-in');
+    }
+
+    // ── Public actions ─────────────────────────────────────────────────
+    async function submitRoast() {
+      const idea = ideaInput.value.trim();
+      if (!idea) {
+        ideaInput.focus();
+        statusMsg.textContent = '✏️ Please enter an idea first!';
+        setTimeout(() => { statusMsg.textContent = ''; }, 3000);
+        return;
+      }
+      if (isStreaming) return;
+      currentIdea = idea;
+      await startStream(idea, selectedIntensity);
+    }
+
+    function toggleDefend() {
+      const isOpen = defendSection.classList.contains('open');
+      if (isOpen) {
+        defendSection.classList.remove('open');
+      } else {
+        defendSection.classList.add('open');
+        defenseInput.focus();
+      }
+    }
+
+    async function submitDefense() {
+      const defense = defenseInput.value.trim();
+      if (!defense) { defenseInput.focus(); return; }
+      if (isStreaming) return;
+      defenseInput.value = '';
+      await startStream(currentIdea, selectedIntensity, defense);
+    }
+
+    function saveRoast() {
+      if (!rawRoastText) return;
+      const blob = new Blob([rawRoastText], { type: 'text/plain' });
+      const url  = URL.createObjectURL(blob);
+      const a    = Object.assign(document.createElement('a'), {
+        href:     url,
+        download: `roast-${Date.now()}.txt`
+      });
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ── Keyboard shortcut: Ctrl/Cmd + Enter to roast ──────────────────
+    ideaInput.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') submitRoast();
+    });
+
+    defenseInput.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') submitDefense();
+    });
+  </script>
+</body>
+</html>
