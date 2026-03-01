@@ -2,6 +2,8 @@
 
 Submit your startup idea and watch Claude tear it apart — word by word, in real time.
 
+> Powered by Claude `claude-sonnet-4-6` with streaming via the Anthropic SDK.
+
 ## Features
 
 - **Three roast intensities** — Mild 🌶️ / Medium 🔥 / Savage 💀
