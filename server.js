@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const client = new Anthropic();
+const client = new OpenAI();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -107,16 +107,20 @@ app.post('/roast', async (req, res) => {
     : `Roast this idea: ${idea.trim()}`;
 
   try {
-    const stream = client.messages.stream({
-      model: 'claude-sonnet-4-6',
+    const stream = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
       max_tokens: 1200,
-      system: SYSTEM_PROMPTS[intensity],
-      messages: [{ role: 'user', content: userMessage }]
+      stream: true,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPTS[intensity] },
+        { role: 'user', content: userMessage }
+      ]
     });
 
-    for await (const event of stream) {
-      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-        res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
+    for await (const chunk of stream) {
+      const text = chunk.choices[0]?.delta?.content;
+      if (text) {
+        res.write(`data: ${JSON.stringify({ text })}\n\n`);
       }
     }
 
